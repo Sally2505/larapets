@@ -1,56 +1,45 @@
 @if($pets->count() == 0)
-
-<tr class="h-24">
-    <td colspan="8" class="text-center align-middle py-4 text-black font-bold">
+<tr>
+    <td colspan="10" class="text-center text-white font-bold py-4">
         No pets found
     </td>
 </tr>
-
-
-
 @else
-
 @foreach($pets as $pet)
 <tr class="border-b border-[#f50b6c70] hover:bg-[#ffa6cb70] transition">
 
     <td class="hidden md:table-cell">{{ $pet->id }}</td>
 
-    {{-- FOTO --}}
-    <td class="py-2 whitespace-nowrap">
+    <td class="py-2">
         <div class="avatar">
-            <div class="w-14 md:w-16 rounded-full bg-gray-200 overflow-hidden">
-                <img src="{{ asset('images/'.$pet->image) }}" loading="lazy" width="64" height="64"
-                    class="object-cover w-full h-full transition-opacity duration-300" />
+            <div class="w-14 rounded-full overflow-hidden bg-gray-300">
+                <img src="{{ asset('images/'.$pet->image) }}" class="object-cover w-full h-full" />
             </div>
         </div>
     </td>
 
-    <td class="py-3 font-medium text-white whitespace-nowrap">
-        {{ $pet->name }}
-    </td>
-
+    <td class="text-white font-semibold">{{ $pet->name }}</td>
     <td class="hidden md:table-cell">{{ $pet->kind }}</td>
     <td class="hidden md:table-cell">{{ $pet->weight }} kg</td>
     <td class="hidden md:table-cell">{{ $pet->age }}</td>
     <td class="hidden md:table-cell">{{ $pet->breed }}</td>
 
-    <td class="hidden md:table-cell">
-        @if ($pet->status)
-        <div class="badge bg-[#07e91e60] text-white border-none">Adopted</div>
+    <td>
+        @if($pet->status)
+            <div class="badge bg-green-600/60 text-white border-none">Adopted</div>
         @else
-        <div class="badge bg-[#e9d50760] text-white border-none">Waiting</div>
+            <div class="badge bg-yellow-600/60 text-white border-none">Waiting</div>
         @endif
     </td>
 
-    <td class="hidden md:table-cell">
-        @if ($pet->active)
-        <div class="badge bg-[#07e91e60] text-white border-none">Active</div>
+    <td>
+        @if($pet->active)
+            <div class="badge bg-green-600/60 text-white border-none">Active</div>
         @else
-        <div class="badge bg-[#e9070760] text-white border-none">Inactive</div>
+            <div class="badge bg-red-600/60 text-white border-none">Inactive</div>
         @endif
     </td>
 
-    {{-- Actions --}}
     <td class="py-4 flex justify-center gap-4 md:gap-3 whitespace-nowrap">
 
         <a href="#" class="btn_adopt text-[#ffffff] hover:text-[#ff78c9]" data-id="{{ $pet->id }}"
@@ -62,13 +51,6 @@
             </svg>
         </a>
 
-        <form class="hidden" method="POST" action="{{ url('pets/'.$pet->id) }}">
-            @csrf
-            @method('delete')
-        </form>
-    </td>
-
 </tr>
 @endforeach
-
 @endif

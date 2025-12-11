@@ -49,7 +49,6 @@
                 <th class="hidden md:table-cell">Weight</th>
                 <th class="hidden md:table-cell">Age</th>
                 <th class="hidden md:table-cell">Breed</th>
-                {{-- <th class="hidden md:table-cell">Location</th> --}}
                 <th class="hidden md:table-cell py-3">Status</th>
                 <th class="hidden md:table-cell py-3">Active</th>
                 <th class="py-3 text-center">Actions</th>
@@ -152,6 +151,7 @@
     </div>
     <form method="dialog" class="modal-backdrop"><button>close</button></form>
 </dialog>
+
 <dialog id="modal_adopt" class="modal">
     <div class="modal-box text-center">
         <h3 class="text-2xl font-bold mb-4">Confirm Adoption 💖</h3>
@@ -174,67 +174,71 @@
 
 @section('js')
 <script>
-    $(document).ready(function (){
+$(document).ready(function () {
 
-    // Modal Delete
-    const modal_delete = document.getElementById('modal_delete');
-    let $frm;
+    // ========== SEARCH FIX ==========
 
-    $('table').on('click', '.btn_delete', function() {
-        const name = $(this).data('name');
-        $('.fullname').text(name);
-        $frm = $(this).next();
-        modal_delete.showModal();
-    });
-
-    $('.btn_confirm').on('click', function(e){
-        e.preventDefault();
-        $frm.submit();
-    });
-
-    // Search
     function debounce(func, wait) {
-        let timeout
-        return function(...args) {
-            const later = () => { clearTimeout(timeout); func(...args) };
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait)
-        }
+            timeout = setTimeout(later, wait);
+        };
     }
 
     const search = debounce(function(query) {
-        const token = $('input[name=_token]').val()
-        $.post("search/makeadoption", {'q': query, '_token': token}, function (data) {
-            $('.datalist').html(data).hide().fadeIn(1000)
-        })
-    }, 500)
+
+        $.post("{{ route('customer.adoptions.search') }}", {
+            q: query,
+            _token: "{{ csrf_token() }}"
+        }, function(data) {
+            $('.datalist').html(data).hide().fadeIn(300);
+        });
+
+    }, 400);
 
     $('body').on('input', '#qsearch', function(event) {
-        event.preventDefault()
-        const query = $(this).val()
-        $('.datalist').html(`<tr><td colspan="9" class="text-center py-18"><span class="loading loading-spinner loading-xl"></span></td></tr>`)
-        if(query != ''){ search(query) }
-        else{ setTimeout(() => { window.location.replace('makeadoption') }, 500); }
+        event.preventDefault();
+
+        const query = $(this).val();
+
+        $('.datalist').html(`
+            <tr>
+                <td colspan="11" class="text-center py-18">
+                    <span class="loading loading-spinner loading-xl"></span>
+                </td>
+            </tr>
+        `);
+
+        if(query !== ''){
+            search(query);
+        } else {
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
+        }
     });
 
 
-    // Import
-    $('.btn-import').click(function(){ $('#file').click(); })
-    $('#file').change(function(){ $(this).parent().submit(); })
+    // ========== MODAL ADOPT ==========
 
-})
+    const modal_adopt = document.getElementById('modal_adopt');
 
-// Modal Adopt
-const modal_adopt = document.getElementById('modal_adopt');
+    $('table').on('click', '.btn_adopt', function(e){
+        e.preventDefault();
+        const id = $(this).data('id');
+        const name = $(this).data('name');
 
-$('table').on('click', '.btn_adopt', function(e){
-    e.preventDefault();
-    const petId = $(this).data('id');
-    const petName = $(this).data('name');
-    $('#modal_pet_id').val(petId);
-    $('#modal_pet_name').text(petName);
-    modal_adopt.showModal();
+        $('#modal_pet_id').val(id);
+        $('#modal_pet_name').text(name);
+
+        modal_adopt.showModal();
+    });
+
 });
-
 </script>
 @endsection
